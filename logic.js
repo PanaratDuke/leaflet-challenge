@@ -28,7 +28,9 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     zoomOffset: -1,
     accessToken: API_KEY
 }).addTo(myMap);
-
+function markerSize(magnitude){
+    return (magnitude) * 2;
+}
 function getColor(d) {
     return d > 9 ? '#800026' :
             d > 7 ? '#BD0026' :
@@ -41,11 +43,11 @@ function addLegend() {
     var legend = L.control({position: "topright" });
     legend.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'info legend'),
-        magnitudes = [1, 3, 5, 7, 9];
-        magnitudes.forEach(m => {
-            div.innerHTML +=
-                '<i style="background:' + getColor(m) + '"></i> ' +
-                (m-1) + '&ndash;' + (m+1) + '<br>';
+        magnitudesLegend = [1, 3, 5, 7, 9];
+        magnitudesLegend.forEach(m => {
+            div.innerHTML +=     
+            '<i style="background:' + `${getColor(m)}` + '"></i> ' +
+            (m - 1) + '&ndash;' + (m + 1) + '<br>';
         });
         return div;
     };
@@ -55,10 +57,13 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojs
     L.geoJSON(data.features, {
         pointToLayer: function (feature, latlng) {
             var magnitude = feature.properties.mag;
+            console.log("mag = ",typeof magnitude);
             return L.circleMarker(latlng, {
-                redius: magnitude * 3,
-                color: getColor(magnitude),
-                fillOpacity: 0.8
+                radius: markerSize(magnitude),  
+                color: "gray",
+                fillColor: getColor(magnitude),
+                fillOpacity: 0.8,
+                weight:0.5
             }
             );
         }
